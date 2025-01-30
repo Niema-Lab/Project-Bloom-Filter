@@ -77,3 +77,15 @@ mkdir biobloomResults
 ```
 less biobloomResults_summary.tsv
 ```
+
+## Combine SC2 and hg38 files for Python script
+```
+cat SC2_R1.fq SC2_R2.fq > mergedSC2.fq
+```
+```
+cat hg38_R1.fq hg38_R2.fq > mergedhg38.fq
+```
+## Run Python script to parse results
+```
+python accuracyBiobloom.py mergedSC2.fq mergedhg38.fq nonhost_reads.fq
+```
