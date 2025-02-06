@@ -24,8 +24,8 @@ make
 ```
 
 
-# To copy a local file into Docker:
-## Outside Docker in separate terminal
+## To copy a local file into Docker:
+(Outside Docker in separate terminal)
 ```
 docker cp /PATH CONTAINERID:data
 ```
@@ -37,22 +37,22 @@ docker ps	# If you need to find the container ID / name
 cd data
 ```
 
-Benchmark hg38 Bloom Filter Creation
+## Benchmark hg38 Bloom Filter Creation
 ```
 apt-get update && apt-get install -y time
 /usr/bin/time -v biobloommaker -t 8 -p hg38 GCA_000001405.29_GRCh38.p14_genomic.fna
 ```
 
-## Downloaded 64-bit Linux art_illumina
+## Simulating Reads (64-bit Linux art_illumina)
 Simulate 900k SARS-CoV-2 reads
 ```
 ./art_bin_MountRainier2/art_illumina -ss HS25 -i NC_045512.fas -p -l 150 -c 450000 -m 200 -s 10 --noALN -o SC2_R
 ```
 Simulate 100k hg38 reads
 ```
-./art_bin_MountRainier2/art_illumina -ss HS25 -i GCF_000001405.40 -p -l 150 -c 50000 -m 200 -s 10 --noALN -o hg38_R
+./art_bin_MountRainier2/art_illumina -ss HS25 -i GCF_000001405.40 -p -l 150 -c 71 -m 200 -s 10 --noALN -o hg38_R
 ```
-### Note: To count # of reads in file by counting # of plusses:
+Note: To count # of reads in file by counting # of plusses:
 ```
 grep -o "+" hg38_R1.fq | wc -l
 ```
@@ -69,23 +69,16 @@ cat SC2_R2.fq hg38_R2.fq > mixed_reverse_reads.fq
 ```
 mkdir biobloomResults
 ```
-## Run and Benchmark BioBloom
+## Run and Benchmark BioBloomCategorizer
 ```
-/usr/bin/time -v biobloomcategorizer -e -p biobloomResults -f "hg38.bf" mixed_forward_reads.fq mixed_reverse_reads.fq
+/usr/bin/time -v biobloomcategorizer -d -n -e -p biobloomResults -f "hg38.bf" mixed_forward_reads.fq mixed_reverse_reads.fq > nonhost_reads.fq
 ```
 ## See Results
 ```
 less biobloomResults_summary.tsv
 ```
 
-## Combine SC2 and hg38 files for Python script
-```
-cat SC2_R1.fq SC2_R2.fq > mergedSC2.fq
-```
-```
-cat hg38_R1.fq hg38_R2.fq > mergedhg38.fq
-```
 ## Run Python script to parse results
 ```
-python accuracyBiobloom.py mergedSC2.fq mergedhg38.fq nonhost_reads.fq
+python accuracyBiobloom.py mixed_forward_reads.fq mixed_reverse_reads.fq nonhost_reads.fq
 ```
