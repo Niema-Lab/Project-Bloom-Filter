@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: biobloom-benchmark
+spec:
+  template:
+    spec:
+      containers:
+        - name: biobloom-benchmark
+          image: katelynpdn/biobloom:latest
+          resources:
+            limits:
+              memory: 800Gi
+              cpu: 8
+            requests:
+              memory: 700Gi
+              cpu: 8
+      restartPolicy: Never
+  backoffLimit: 2
