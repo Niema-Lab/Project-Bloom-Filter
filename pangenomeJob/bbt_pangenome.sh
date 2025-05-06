@@ -19,37 +19,33 @@ rm -r ref
 
 echo "Connecting to AWS"
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-apt install unzip
+apt install -y unzip
 unzip awscliv2.zip
 ./aws/install
+mkdir ~/.aws
 echo "[prp]
-aws_access_key_id = 34GDFRY3HW90443QI579
-aws_secret_access_key = yUgnWULM09iZfQIyf5H2ILsKeJy56EIxDeFGifBm" >> aws/credentials 
+aws_access_key_id = INSERTKEY
+aws_secret_access_key = INSERTKEY" >> ~/.aws/credentials 
 echo "[prp]
 s3api = endpoint_url = https://s3-west.nrp-nautilus.io
 s3 = endpoint_url = https://s3-west.nrp-nautilus.io
 [plugins]
-endpoint = awscli_plugin_endpoint" >> aws/config 
+endpoint = awscli_plugin_endpoint" >> ~/.aws/config 
 
-# echo "Downloading read data"
+echo "Downloading read data"
+aws s3 cp s3://biobloomBucket/h100000-m100000 . --recursive --profile prp --endpoint-url https://s3-west.nrp-nautilus.io
 
-# echo "Simulating SARS-CoV-2 reads"
-# ./art_bin_MountRainier2/art_illumina -ss HS25 -i NC_045512.fas -p -l 150 -c 450000 -m 200 -s 10 --noALN -o SC2_R
+echo "Merging forward and reverse reads"
+cat *R1.fastq > mixed_forward_reads.fq
+cat *R2.fastq > mixed_reverse_reads.fq
 
-# echo "Simulating hg38 reads"
-# ./art_bin_MountRainier2/art_illumina -ss HS25 -i GCA_000001405.29_GRCh38.p14_genomic.fna -p -l 150 -c 71 -m 200 -s 10 --noALN -o hg38_R
+echo "Creating output folder"
+mkdir biobloomResults
 
-# echo "Merging forward and reverse reads"
-# cat SC2_R1.fq hg38_R1.fq > mixed_forward_reads.fq
-# cat SC2_R2.fq hg38_R2.fq > mixed_reverse_reads.fq
+echo "Running BioBloomCategorizer"
+/usr/bin/time -v biobloomcategorizer -d -n -e -p biobloomResults -f "human.bf" mixed_forward_reads.fq mixed_reverse_reads.fq > nonhost_reads.fq
 
-# echo "Creating output folder"
-# mkdir biobloomResults
+echo "Running Python script for accuracy analysis"
+python3 accuracyBiobloom.py mixed_forward_reads.fq mixed_reverse_reads.fq nonhost_reads.fq
 
-# echo "Running BioBloomCategorizer"
-# /usr/bin/time -v biobloomcategorizer -d -n -e -p biobloomResults -f "hg38.bf" mixed_forward_reads.fq mixed_reverse_reads.fq > nonhost_reads.fq
-
-# echo "Running Python script for accuracy analysis"
-# python3 accuracyBiobloom.py mixed_forward_reads.fq mixed_reverse_reads.fq nonhost_reads.fq
-
-# echo "Benchmarking complete!"
+echo "Benchmarking complete!"
