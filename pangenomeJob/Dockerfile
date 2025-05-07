@@ -30,6 +30,8 @@ COPY download_references.sh /usr/local/bin/download_references.sh
 RUN chmod +x /usr/local/bin/download_references.sh
 COPY ref/ /usr/local/ref/
 RUN chmod -R +x /usr/local/ref/
+COPY accuracyBiobloom.py /usr/local/bin/
+RUN chmod -R +x /usr/local/bin/accuracyBiobloom.py
 
 # Add /usr/local/bin to PATH
 ENV PATH="/usr/local/bin:${PATH}"
